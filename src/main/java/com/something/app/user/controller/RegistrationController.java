@@ -34,7 +34,7 @@ public class RegistrationController {
 	            }
 	            return new ResponseEntity<>(errorMap, HttpStatus.BAD_REQUEST);
 	        }
-	        Optional<User> returnedUser = Optional.ofNullable(userRepository.findByNameAndPassword(user.getName(),user.getPassword()));
+	        Optional<User> returnedUser = userRepository.findByEmailAndPassword(user.getEmail(),user.getPassword());
 	        if(returnedUser.isPresent()) {
 	        	return new ResponseEntity<>("Failure", HttpStatus.NOT_ACCEPTABLE);
 	        }	
@@ -44,11 +44,12 @@ public class RegistrationController {
 	    
 	    @PostMapping("/login")
 	    public ResponseEntity<?> loginUser(@RequestBody Map<String,String> loginDetails){
-	    	Optional<User> returnedUser = Optional.ofNullable(userRepository.findByNameAndPassword(loginDetails.get("name"), loginDetails.get("password")));
+	    	Optional<User> returnedUser = userRepository.findByEmailAndPassword(loginDetails.get("email"), loginDetails.get("password"));
+	    	
 	    	if(returnedUser!=null){ 
-	    		 return new ResponseEntity<>(returnedUser.get().getId(), HttpStatus.OK);
+	    		 return new ResponseEntity<>(returnedUser.get(), HttpStatus.OK);
 	    	}
-	    	return new ResponseEntity<>("Error", HttpStatus.NOT_FOUND);
+	    	return new ResponseEntity<>("Password Incorrect", HttpStatus.NOT_FOUND);
 	    }
 	    
 	    
