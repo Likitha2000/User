@@ -48,8 +48,8 @@ public class RegistrationController {
 	            }
 	            return new ResponseEntity<>(errorMap, HttpStatus.BAD_REQUEST);
 	        }
-	        Optional<User> returnedUser = userRepository.findByEmailAndPassword(user.getEmail(),user.getPassword());
-	        if(returnedUser.isPresent()) {
+	        User returnedUser = userRepository.findByEmailAndPassword(user.getEmail(),user.getPassword());
+	        if(returnedUser==null) {
 	        	return new ResponseEntity<>("Failure", HttpStatus.NOT_ACCEPTABLE);
 	        }	
 
