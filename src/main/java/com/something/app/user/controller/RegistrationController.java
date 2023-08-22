@@ -41,6 +41,7 @@ public class RegistrationController {
 
 	    @PostMapping("/register")
 	    public ResponseEntity<?> registerUser(@Valid @RequestBody User user, BindingResult result) {
+	    	try {
 	        if (result.hasErrors()) {
 	            Map<String, String> errorMap = new HashMap<>();
 	            for (FieldError error : result.getFieldErrors()) {
@@ -54,6 +55,10 @@ public class RegistrationController {
 	        }	
 
 	        return new ResponseEntity<>(userRepository.save(user), HttpStatus.CREATED);
+	    	}
+	    catch(Exception e) {
+	    	return new ResponseEntity<>("Server Error",HttpStatus.NOT_FOUND);	    
+	    }
 	    }
 	    
 	    @PostMapping("/login")

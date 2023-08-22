@@ -37,6 +37,9 @@ public class User{
     @NotBlank
     @Size(max=10)
     private String phoneNumber;
+    
+    @NotBlank
+    private int roleType;
 
 	public Long getId() {
 		return id;
@@ -92,6 +95,14 @@ public class User{
 
 	public void setPhoneNumber(String phoneNumber) {
 		this.phoneNumber = phoneNumber;
+	}
+
+	public int getRoleType() {
+		return roleType;
+	}
+
+	public void setRoleType(int roleType) {
+		this.roleType = roleType;
 	}
 
 
