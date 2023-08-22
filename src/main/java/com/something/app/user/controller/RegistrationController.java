@@ -1,8 +1,11 @@
 package com.something.app.user.controller;
 
+import javax.crypto.SecretKey;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -18,12 +21,23 @@ import java.util.*;
 import com.something.app.user.model.User;
 import com.something.app.user.repository.UserRepository;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+
 @RestController
 @RequestMapping("/user")
 public class RegistrationController {
 
 	    @Autowired
 	    private UserRepository userRepository;
+	    
+	    @Value("${app.jwt.secret}")
+	    private String jwtSecret;
+
+	    @Value("${app.jwt.expiration}")
+	    private int jwtExpiration;
+
 
 	    @PostMapping("/register")
 	    public ResponseEntity<?> registerUser(@Valid @RequestBody User user, BindingResult result) {
@@ -44,17 +58,43 @@ public class RegistrationController {
 	    
 	    @PostMapping("/login")
 	    public ResponseEntity<?> loginUser(@RequestBody Map<String,String> loginDetails){
-	    	Optional<User> returnedUser = userRepository.findByEmailAndPassword(loginDetails.get("email"), loginDetails.get("password"));
-	    	
-	    	if(returnedUser!=null){ 
-	    		 return new ResponseEntity<>(returnedUser.get(), HttpStatus.OK);
+	    	try {
+	    		User returnedUser = userRepository.findByEmailAndPassword(loginDetails.get("email"), loginDetails.get("password"));
+		    	if(returnedUser == null) {
+		    		return new ResponseEntity<>("Password Incorrect", HttpStatus.NOT_FOUND);
+		    	}
+		    	else{ 
+			    	String token = generateToken(returnedUser.getEmail());
+			    	HttpHeaders headers = new HttpHeaders();
+			    	headers.add("token", token);
+		    		 return ResponseEntity.status(HttpStatus.OK).headers(headers).body(returnedUser);
+		    	}
 	    	}
-	    	return new ResponseEntity<>("Password Incorrect", HttpStatus.NOT_FOUND);
+	    	catch(Exception e) {
+	    	return new ResponseEntity<>("Server Error", HttpStatus.NOT_FOUND);
+	    	}
 	    }
 	    
+	    private String generateToken(String username) {
+	        Date now = new Date();
+	        Date expirationDate = new Date(now.getTime() + jwtExpiration * 1000);
+	        SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+	        return Jwts.builder()
+	                .setSubject(username)
+	                .setIssuedAt(now)
+	                .setExpiration(expirationDate)
+	                .signWith(SignatureAlgorithm.HS512, key)
+	                .compact();
+	    }
 	    
 	    @GetMapping("/all")
 	    public ResponseEntity<?> displayAll(){
 	    	return new ResponseEntity<>(userRepository.findAll(),HttpStatus.OK);
 	    }
+	    
+	    @PostMapping("/getQuestions")
+	    public ResponseEntity<?> getAllQuestions(){
+	    	return null;
+	    }
 }
+
