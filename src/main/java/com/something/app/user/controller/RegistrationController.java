@@ -32,8 +32,8 @@ public class RegistrationController {
 	    @Autowired
 	    private UserRepository userRepository;
 	    
-	    @Value("${app.jwt.secret}")
-	    private String jwtSecret;
+//	    @Value("${app.jwt.secret}")
+//	    private String jwtSecret;
 
 	    @Value("${app.jwt.expiration}")
 	    private int jwtExpiration;

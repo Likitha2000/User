@@ -11,34 +11,43 @@ import javax.validation.constraints.Size;
 
 
 @Entity
+@Table(name="users")
 public class User{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column
     private Long id;
     
     @NotBlank
     @Size(max = 100)
+    @Column
     private String name;
     
     @NotBlank
     @Email
+    @Column
     private String email;
     
     @NotBlank
     @Size(min = 8)
+    @Column
     private String password;
     
     @NotBlank
+    @Column
     private String gender;
     
     @NotBlank
+    @Column
     private String dob;
     
     @NotBlank
     @Size(max=10)
+    @Column
     private String phoneNumber;
     
     @NotBlank
+    @Column
     private int roleType;
 
 	public Long getId() {
