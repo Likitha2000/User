@@ -86,7 +86,7 @@ public class RegistrationController {
 	    @PostMapping("/login")
 	    public ResponseBody loginUser(@RequestBody Map<String,String> loginDetails){
 	    	try {
-	    		User returnedUser = userRepository.findByEmailAndPassword(loginDetails.get("email"), loginDetails.get("password"));
+	    		User returnedUser = userRepository.findByEmail(loginDetails.get("email"));
 		    	ResponseBody responseBody = new ResponseBody();
 	    		if(returnedUser == null) {
 		    		responseBody.setStatus(0);
@@ -94,6 +94,12 @@ public class RegistrationController {
 		            responseBody.setUserData(null);
 		            return responseBody;
 		    	}
+	    		else if(userRepository.findByEmailAndPassword(loginDetails.get("email"), loginDetails.get("password")) == null) {
+	    			responseBody.setStatus(0);
+		            responseBody.setMessage("Password incorrect");
+		            responseBody.setUserData(null);
+		            return responseBody;
+	    		}
 		    	else{ 
 			    	String token = generateToken(returnedUser.getEmail());
 			    	responseBody.setStatus(1);
