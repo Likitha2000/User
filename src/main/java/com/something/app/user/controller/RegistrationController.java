@@ -108,6 +108,9 @@ public class RegistrationController {
 			    	userData.setToken(token);
 			    	userData.setName(returnedUser.getName());
 			    	userData.setEmail(returnedUser.getEmail());
+			    	userData.setDob(returnedUser.getDob());
+			    	userData.setPhoneNumber(returnedUser.getPhoneNumber());
+			    	userData.setRoleType(returnedUser.getRoleType());
 			    	responseBody.setUserData(userData);
 			    	return responseBody;
 		    	}
