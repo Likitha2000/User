@@ -18,8 +18,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.*;
 
+import com.something.app.user.model.ResponseBody;
 import com.something.app.user.model.User;
 import com.something.app.user.repository.UserRepository;
+import com.something.app.user.model.UserDataResponse;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -31,52 +33,85 @@ public class RegistrationController {
 
 	    @Autowired
 	    private UserRepository userRepository;
-	    
-//	    @Value("${app.jwt.secret}")
-//	    private String jwtSecret;
 
 	    @Value("${app.jwt.expiration}")
 	    private int jwtExpiration;
 
 
 	    @PostMapping("/register")
-	    public ResponseEntity<?> registerUser(@Valid @RequestBody User user, BindingResult result) {
+	    public ResponseBody registerUser(@Valid @RequestBody User user, BindingResult result) {
+	    	ResponseBody responseBody = new ResponseBody();
 	    	try {
 	        if (result.hasErrors()) {
 	            Map<String, String> errorMap = new HashMap<>();
 	            for (FieldError error : result.getFieldErrors()) {
 	                errorMap.put(error.getField(), error.getDefaultMessage());
 	            }
-	            return new ResponseEntity<>(errorMap, HttpStatus.BAD_REQUEST);
+	            responseBody.setStatus(0);
+	            responseBody.setMessage("Error in data passed");
+	            responseBody.setUserData(null);
+	            return responseBody;
 	        }
 	        User returnedUser = userRepository.findByEmailAndPassword(user.getEmail(),user.getPassword());
 	        if(returnedUser!=null) {
-	        	return new ResponseEntity<>("Failure", HttpStatus.NOT_ACCEPTABLE);
+	        	responseBody.setStatus(0);
+	            responseBody.setMessage("User already exists");
+	            responseBody.setUserData(null);
+	            return responseBody;
 	        }	
+	        else {
+		        User finalUser = userRepository.save(user);
+		        responseBody.setStatus(1);
+		        responseBody.setMessage("Success");
+		        UserDataResponse userData = new UserDataResponse();
+		        userData.setId(finalUser.getId());
+		        userData.setEmail(finalUser.getEmail());
+		        userData.setDob(finalUser.getDob());
+		        userData.setName(finalUser.getName());
+		        userData.setPhoneNumber(finalUser.getPhoneNumber());
+		        userData.setRoleType(finalUser.getRoleType());
+		        responseBody.setUserData(userData);
+		        return responseBody;
+	        }
 
-	        return new ResponseEntity<>(userRepository.save(user), HttpStatus.CREATED);
 	    	}
 	    catch(Exception e) {
-	    	return new ResponseEntity<>("Server Error",HttpStatus.NOT_FOUND);	    
+	    	responseBody.setStatus(0);
+            responseBody.setMessage("Server Error");
+            responseBody.setUserData(null);
+            return responseBody;	    
 	    }
 	    }
 	    
 	    @PostMapping("/login")
-	    public ResponseEntity<?> loginUser(@RequestBody Map<String,String> loginDetails){
+	    public ResponseBody loginUser(@RequestBody Map<String,String> loginDetails){
 	    	try {
 	    		User returnedUser = userRepository.findByEmailAndPassword(loginDetails.get("email"), loginDetails.get("password"));
-		    	if(returnedUser == null) {
-		    		return new ResponseEntity<>("Password Incorrect", HttpStatus.NOT_FOUND);
+		    	ResponseBody responseBody = new ResponseBody();
+	    		if(returnedUser == null) {
+		    		responseBody.setStatus(0);
+		            responseBody.setMessage("User not found");
+		            responseBody.setUserData(null);
+		            return responseBody;
 		    	}
 		    	else{ 
 			    	String token = generateToken(returnedUser.getEmail());
-			    	HttpHeaders headers = new HttpHeaders();
-			    	headers.add("token", token);
-		    		 return ResponseEntity.status(HttpStatus.OK).headers(headers).body(returnedUser);
+			    	responseBody.setStatus(1);
+			    	responseBody.setMessage("Success");
+			    	UserDataResponse userData = new UserDataResponse();
+			    	userData.setToken(token);
+			    	userData.setName(returnedUser.getName());
+			    	userData.setEmail(returnedUser.getEmail());
+			    	responseBody.setUserData(userData);
+			    	return responseBody;
 		    	}
 	    	}
 	    	catch(Exception e) {
-	    	return new ResponseEntity<>("Server Error", HttpStatus.NOT_FOUND);
+	    		ResponseBody responseBody = new ResponseBody();
+	    		responseBody.setStatus(0);
+		    	responseBody.setMessage("Server Error");
+		    	responseBody.setUserData(null);
+		    	return responseBody;
 	    	}
 	    }
 	    
