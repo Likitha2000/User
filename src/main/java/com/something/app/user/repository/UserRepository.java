@@ -1,7 +1,5 @@
 package com.something.app.user.repository;
 
-import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.something.app.user.model.User;
@@ -13,4 +11,6 @@ public interface UserRepository extends JpaRepository<User, Long>{
 	User findByEmailAndPassword(String email, String password);
 
 	User findByEmail(String email);
+
+	
 }

@@ -1,5 +1,7 @@
 package com.something.app.user.model;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -14,6 +16,7 @@ public class UserDataResponse {
 	private String dob;
 	private String phoneNumber;
 	private int roleType;
+	private List<Question> questionData;
 	public String getName() {
 		return name;
 	}
@@ -67,6 +70,12 @@ public class UserDataResponse {
 	}
 	public void setRoleType(int roleType) {
 		this.roleType = roleType;
+	}
+	public List<Question> getQuestionData() {
+		return questionData;
+	}
+	public void setQuestionData(List<Question> questionData) {
+		this.questionData = questionData;
 	}
 	
 	
