@@ -18,9 +18,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.*;
 
+import com.something.app.user.model.Answer;
+import com.something.app.user.model.Question;
 import com.something.app.user.model.ResponseBody;
 import com.something.app.user.model.User;
+import com.something.app.user.repository.AnswerRepository;
+import com.something.app.user.repository.QuestionRepository;
 import com.something.app.user.repository.UserRepository;
+import com.something.app.user.service.UserService;
 import com.something.app.user.model.UserDataResponse;
 
 import io.jsonwebtoken.Jwts;
@@ -33,6 +38,15 @@ public class RegistrationController {
 
 	    @Autowired
 	    private UserRepository userRepository;
+	    
+	    @Autowired
+	    private QuestionRepository questionRepo;
+	    
+	    @Autowired
+	    private AnswerRepository answerRepo;
+	    
+	    @Autowired
+	    private UserService userService;
 
 	    @Value("${app.jwt.expiration}")
 	    private int jwtExpiration;
@@ -86,7 +100,7 @@ public class RegistrationController {
 	    @PostMapping("/login")
 	    public ResponseBody loginUser(@RequestBody Map<String,String> loginDetails){
 	    	try {
-	    		User returnedUser = userRepository.findByEmailAndPassword(loginDetails.get("email"), loginDetails.get("password"));
+	    		User returnedUser = userRepository.findByEmail(loginDetails.get("email"));
 		    	ResponseBody responseBody = new ResponseBody();
 	    		if(returnedUser == null) {
 		    		responseBody.setStatus(0);
@@ -94,6 +108,12 @@ public class RegistrationController {
 		            responseBody.setUserData(null);
 		            return responseBody;
 		    	}
+	    		else if(userRepository.findByEmailAndPassword(loginDetails.get("email"), loginDetails.get("password")) == null) {
+	    			responseBody.setStatus(0);
+		            responseBody.setMessage("Password incorrect");
+		            responseBody.setUserData(null);
+		            return responseBody;
+	    		}
 		    	else{ 
 			    	String token = generateToken(returnedUser.getEmail());
 			    	responseBody.setStatus(1);
@@ -102,6 +122,9 @@ public class RegistrationController {
 			    	userData.setToken(token);
 			    	userData.setName(returnedUser.getName());
 			    	userData.setEmail(returnedUser.getEmail());
+			    	userData.setDob(returnedUser.getDob());
+			    	userData.setPhoneNumber(returnedUser.getPhoneNumber());
+			    	userData.setRoleType(returnedUser.getRoleType());
 			    	responseBody.setUserData(userData);
 			    	return responseBody;
 		    	}
@@ -132,9 +155,32 @@ public class RegistrationController {
 	    	return new ResponseEntity<>(userRepository.findAll(),HttpStatus.OK);
 	    }
 	    
-	    @PostMapping("/getQuestions")
-	    public ResponseEntity<?> getAllQuestions(){
-	    	return null;
+	    @GetMapping("/getQuestions")
+	    public List<Question> getAllQuestions(){
+	    	return questionRepo.findAll();
+	    }
+	    
+	    @PostMapping("/insertQuestion")
+	    public Question insertQuestion(@RequestBody Question question) {
+	    	return questionRepo.save(question);
+	    }
+	    
+	    @GetMapping("/getAnswers")
+	    public List<Answer> submitAnswers() {
+//	    	return userRespository.save
+	    	return answerRepo.findAll();
+	    }
+	    
+	    @PostMapping("/postAnswers")
+	    public Answer postAnswers(@RequestBody Answer answer) {
+	    	return answerRepo.save(answer);
+	    }
+	    
+	    @PostMapping("/fetchQuestionAnswers")
+	    public ResponseBody fetchQuestionsAndAnswers(@RequestBody com.something.app.user.model.RequestBody requestBody) {
+	    	Long userId = requestBody.getUserId();
+	    	ResponseBody response = userService.fetchQuestionAndAnswers(userId);
+	    	return response;
 	    }
 }
 

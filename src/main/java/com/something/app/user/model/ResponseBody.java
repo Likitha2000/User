@@ -1,10 +1,16 @@
 package com.something.app.user.model;
 
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ResponseBody {
 	
 	private int status;
 	private String message;
 	private UserDataResponse userData;
+	private List<QuestionResponse> questionResponses;
 	public int getStatus() {
 		return status;
 	}
@@ -22,6 +28,12 @@ public class ResponseBody {
 	}
 	public void setUserData(UserDataResponse userData) {
 		this.userData = userData;
+	}
+	public List<QuestionResponse> getQuestionResponses() {
+		return questionResponses;
+	}
+	public void setQuestionResponses(List<QuestionResponse> questionResponses) {
+		this.questionResponses = questionResponses;
 	}
 	
 }
