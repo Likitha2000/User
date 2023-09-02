@@ -172,10 +172,21 @@ public class RegistrationController {
 	    }
 	    
 	    @PostMapping("/postAnswers")
-	    public Answer postAnswers(@RequestBody Answer answer) {
-	    	return answerRepo.save(answer);
+	    public ResponseBody postAnswers(@RequestBody com.something.app.user.model.RequestBody requestBody) {
+	    	ResponseBody responseBody = new ResponseBody();
+	    	try {
+	    		responseBody.setStatus(1);
+	    		responseBody.setMessage("Success");
+	    		responseBody.setAnswerResponses(answerRepo.saveAll(requestBody.getAnswer()));
+	    	}
+	    	catch(Exception e) {
+	    		responseBody.setStatus(0);
+	    		responseBody.setMessage("Failure");
+	    		responseBody.setAnswerResponses(null);   		
+	    		}
+	  
+	    	return responseBody;
 	    }
-	    
 	    @PostMapping("/fetchQuestionAnswers")
 	    public ResponseBody fetchQuestionsAndAnswers(@RequestBody com.something.app.user.model.RequestBody requestBody) {
 	    	Long userId = requestBody.getUserId();

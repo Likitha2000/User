@@ -11,6 +11,7 @@ public class ResponseBody {
 	private String message;
 	private UserDataResponse userData;
 	private List<QuestionResponse> questionResponses;
+	private List<Answer> answerResponses;
 	public int getStatus() {
 		return status;
 	}
@@ -34,6 +35,12 @@ public class ResponseBody {
 	}
 	public void setQuestionResponses(List<QuestionResponse> questionResponses) {
 		this.questionResponses = questionResponses;
+	}
+	public List<Answer> getAnswerResponses() {
+		return answerResponses;
+	}
+	public void setAnswerResponses(List<Answer> answerResponses) {
+		this.answerResponses = answerResponses;
 	}
 	
 }
